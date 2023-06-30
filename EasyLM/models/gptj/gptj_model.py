@@ -251,9 +251,9 @@ class GPTJConfig(PretrainedConfig):
         config.name = 'EleutherAI/gpt-j-6B'
         config.bos_token = '<|endoftext|>'
         config.eos_token = '<|endoftext|>'
-        config.pad_token = '<|extratoken_40|>'
-        config.cls_token = '<|extratoken_41|>'
-        config.mask_token = '<|extratoken_42|>'
+        config.pad_token = '<|endoftext|>'
+        # config.cls_token = '<|endoftext|>'
+        # config.mask_token = '<|endoftext|>'
 
         if updates is not None:
             config.update(ConfigDict(updates).copy_and_resolve_references())
@@ -268,8 +268,8 @@ class GPTJConfig(PretrainedConfig):
             bos_token=config.bos_token,
             eos_token=config.eos_token,
             pad_token=config.pad_token,
-            cls_token=config.cls_token,
-            mask_token=config.mask_token,
+            # cls_token=config.cls_token,
+            # mask_token=config.mask_token,
             padding_side=padding_side,
             truncation_side=truncation_side,
         )
