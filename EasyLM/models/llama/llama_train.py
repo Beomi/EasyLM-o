@@ -64,7 +64,7 @@ def main(argv):
     )
     set_random_seed(FLAGS.seed)
 
-    tokenizer = LLaMAConfig.get_tokenizer(FLAGS.tokenizer)
+    tokenizer = GPTJConfig.get_tokenizer(FLAGS.tokenizer)
     dataset = DatasetFactory.load_dataset(FLAGS.train_dataset, tokenizer)
     if FLAGS.load_dataset_state != '':
         dataset.load_state_dict(mlxu.load_pickle(FLAGS.load_dataset_state))
