@@ -36,7 +36,7 @@ from EasyLM.jax_utils import (
 
 LLAMA_STANDARD_CONFIGS = {
     '3b': {
-        'vocab_size': 32000,
+        'vocab_size': 52000,
         'hidden_size': 3200,
         'intermediate_size': 8640,
         'num_hidden_layers': 26,
@@ -48,7 +48,7 @@ LLAMA_STANDARD_CONFIGS = {
         'tie_word_embeddings': False,
     },
     '7b': {
-        'vocab_size': 32000,
+        'vocab_size': 52000,
         'hidden_size': 4096,
         'intermediate_size': 11008,
         'num_hidden_layers': 32,
@@ -60,7 +60,7 @@ LLAMA_STANDARD_CONFIGS = {
         'tie_word_embeddings': False,
     },
     '13b': {
-        'vocab_size': 32000,
+        'vocab_size': 52000,
         'hidden_size': 5120,
         'intermediate_size': 13824,
         'num_hidden_layers': 40,
@@ -72,7 +72,7 @@ LLAMA_STANDARD_CONFIGS = {
         'tie_word_embeddings': False,
     },
     '30b': {
-        'vocab_size': 32000,
+        'vocab_size': 52000,
         'hidden_size': 6656,
         'intermediate_size': 17920,
         'num_hidden_layers': 60,
@@ -84,7 +84,7 @@ LLAMA_STANDARD_CONFIGS = {
         'tie_word_embeddings': False,
     },
     '65b': {
-        'vocab_size': 32000,
+        'vocab_size': 52000,
         'hidden_size': 8192,
         'intermediate_size': 22016,
         'num_hidden_layers': 80,
@@ -96,7 +96,7 @@ LLAMA_STANDARD_CONFIGS = {
         'tie_word_embeddings': False,
     },
     'debug': { # A small model for debugging
-        'vocab_size': 32000,
+        'vocab_size': 52000,
         'hidden_size': 128,
         'intermediate_size': 256,
         'num_hidden_layers': 2,
