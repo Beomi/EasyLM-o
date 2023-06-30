@@ -23,6 +23,9 @@ from EasyLM.jax_utils import (
 from EasyLM.models.llama.llama_model import (
     LLaMAConfig, FlaxLLaMAForCausalLMModule
 )
+from EasyLM.models.gptj.gptj_model import (
+    GPTJConfig
+)
 
 
 FLAGS, FLAGS_DEF = mlxu.define_flags_with_default(
@@ -38,7 +41,7 @@ FLAGS, FLAGS_DEF = mlxu.define_flags_with_default(
     save_model_freq=0,
     save_milestone_freq=0,
     eval_steps=0,
-    tokenizer=LLaMAConfig.get_tokenizer_config(),
+    tokenizer=GPTJConfig.get_tokenizer_config(),
     train_dataset=DatasetFactory.get_default_config(),
     eval_dataset=DatasetFactory.get_default_config(),
     optimizer=OptimizerFactory.get_default_config(),
