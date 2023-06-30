@@ -9,7 +9,7 @@ gcloud compute tpus tpu-vm ssh $TPU_NAME \
 echo "[local] Git pull"
 gcloud compute tpus tpu-vm ssh $TPU_NAME --zone $ZONE --worker=all --command \
 "source EasyLMenv2/bin/activate && \
-cd EasyLM-o && git pull"
+cd EasyLM-o && git pull && rm /home/beomi/EasyLM-o/runner.sh"
 
 echo "[local] Set runner.sh"
 
@@ -30,7 +30,7 @@ python -m EasyLM.models.llama.llama_train \
 --train_dataset.text_processor.fields='text' \
 --train_dataset.json_dataset.path='gs://kodataset/code-combined.jsonl' \
 --train_dataset.json_dataset.seq_length=2048 \
---train_dataset.json_dataset.batch_size=2048 \
+--train_dataset.json_dataset.batch_size=1024 \
 --train_dataset.json_dataset.tokenizer_processes=16 \
 --tokenizer.name=beomi/kollama-7b \
 --optimizer.type=adamw \
@@ -42,9 +42,6 @@ python -m EasyLM.models.llama.llama_train \
 --checkpointer.save_optimizer_state=True \
 --checkpointer.float_dtype=bf16 \
 --logger.online=True \
---logger.entity=scaling \
---logger.prefix=EasyLM \
---logger.project=open_llama_2 \
 --logger.output_dir=gs://jaxseq-test/easylm-out/test-kollama-7b
 EOF
 chmod +x /home/beomi/EasyLM-o/runner.sh"
@@ -54,3 +51,7 @@ echo "[local] RUN!!!"
 gcloud compute tpus tpu-vm ssh $TPU_NAME --zone us-central2-b --worker=all --command \
 "screen -d -m bash -i -c 'export TCMALLOC_LARGE_ALLOC_REPORT_THRESHOLD=107374182400; \
 source EasyLMenv2/bin/activate && cd EasyLM-o; /home/beomi/EasyLM-o/runner.sh'"
+
+# gcloud compute tpus tpu-vm ssh $TPU_NAME --zone us-central2-b --worker=all --command \
+# "export TCMALLOC_LARGE_ALLOC_REPORT_THRESHOLD=107374182400; \
+# source EasyLMenv2/bin/activate && cd EasyLM-o; /home/beomi/EasyLM-o/runner.sh"
