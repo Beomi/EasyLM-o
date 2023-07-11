@@ -18,10 +18,11 @@ cat > /home/beomi/EasyLM-o/runner.sh << 'EOF'
 export LIBTPU_INIT_ARGS='--xla_jf_spmd_threshold_for_windowed_einsum_mib=0 --xla_tpu_spmd_threshold_for_allgather_cse=10000 --xla_tpu_spmd_rewrite_einsum_with_reshape=true --xla_enable_async_all_gather=true --jax_enable_async_collective_offload=true --xla_tpu_enable_latency_hiding_scheduler=true TPU_MEGACORE=MEGACORE_DENSE'
 export NAME=7B
 python -m EasyLM.models.llama.llama_train \
---load_checkpoint=trainstate_params::gs://jaxseq-test/easylm-out/KoLLAMA-7B-full-resume-bs2048/54f62b37ac694372921f86a92249757d/streaming_train_state \
+--load_dataset_state=gs://jaxseq-test/easylm-out/kollama-7b-phase2-code/ac38ed491cb74e2fababf7f1ed58d422/dataset_30000.pkl \
+--load_checkpoint=trainstate::gs://jaxseq-test/easylm-out/kollama-7b-phase2-code/ac38ed491cb74e2fababf7f1ed58d422/streaming_train_state_30000 \
 --mesh_dim=4,-1,1 \
---dtype=fp32 \
---total_steps=30001 \
+--dtype=bf16 \
+--total_steps=90001 \
 --log_freq=50 \
 --save_model_freq=2500 \
 --save_milestone_freq=10000 \
@@ -31,7 +32,7 @@ python -m EasyLM.models.llama.llama_train \
 --train_dataset.text_processor.fields='text' \
 --train_dataset.json_dataset.path='gs://kodataset/code-combined.jsonl' \
 --train_dataset.json_dataset.seq_length=2048 \
---train_dataset.json_dataset.batch_size=1024 \
+--train_dataset.json_dataset.batch_size=2048 \
 --train_dataset.json_dataset.tokenizer_processes=16 \
 --tokenizer.name=beomi/kollama-7b \
 --optimizer.type=adamw \
