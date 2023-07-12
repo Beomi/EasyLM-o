@@ -18,8 +18,8 @@ cat > /home/beomi/EasyLM-o/runner.sh << 'EOF'
 export LIBTPU_INIT_ARGS='--xla_jf_spmd_threshold_for_windowed_einsum_mib=0 --xla_tpu_spmd_threshold_for_allgather_cse=10000 --xla_tpu_spmd_rewrite_einsum_with_reshape=true --xla_enable_async_all_gather=true --jax_enable_async_collective_offload=true --xla_tpu_enable_latency_hiding_scheduler=true TPU_MEGACORE=MEGACORE_DENSE'
 export NAME=30B
 python -m EasyLM.models.llama.llama_train \
---mesh_dim=1,4,32 \
---dtype=fp32 \
+--mesh_dim=4,-1,4 \
+--dtype=bf16 \
 --total_steps=480000 \
 --log_freq=50 \
 --save_model_freq=2500 \
@@ -30,8 +30,8 @@ python -m EasyLM.models.llama.llama_train \
 --train_dataset.text_processor.fields='text' \
 --train_dataset.json_dataset.path='gs://kodataset/code-combined.jsonl' \
 --train_dataset.json_dataset.seq_length=2048 \
---train_dataset.json_dataset.batch_size=2 \
---train_dataset.json_dataset.tokenizer_processes=32 \
+--train_dataset.json_dataset.batch_size=8 \
+--train_dataset.json_dataset.tokenizer_processes=16 \
 --tokenizer.name=beomi/kollama-33b \
 --optimizer.type=adamw \
 --optimizer.adamw_optimizer.weight_decay=0.1 \
