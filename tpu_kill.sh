@@ -4,4 +4,8 @@ export ZONE='us-central2-b'
 
 echo "[local] Killing TPU"
 gcloud compute tpus tpu-vm ssh $TPU_NAME \
---zone $ZONE --worker=all --command "sudo fuser -k /dev/accel0; sudo rm /tmp/libtpu_lockfile"
+--zone $ZONE --worker=all --command "sudo fuser -k /dev/accel0"
+
+echo "[local] Removing TPU Lock"
+gcloud compute tpus tpu-vm ssh $TPU_NAME \
+--zone $ZONE --worker=all --command "sudo rm -f /tmp/libtpu_lockfile"
