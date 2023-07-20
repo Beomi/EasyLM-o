@@ -9,3 +9,7 @@ gcloud compute tpus tpu-vm ssh $TPU_NAME \
 echo "[local] Removing TPU Lock"
 gcloud compute tpus tpu-vm ssh $TPU_NAME \
 --zone $ZONE --worker=all --command "sudo rm -f /tmp/libtpu_lockfile"
+
+echo "[local] Removing screens"
+gcloud compute tpus tpu-vm ssh $TPU_NAME \
+--zone $ZONE --worker=all --command "killall screen"

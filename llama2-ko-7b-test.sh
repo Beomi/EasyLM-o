@@ -2,9 +2,7 @@
 export TPU_NAME='v4-256'
 export ZONE='us-central2-b'
 
-echo "[local] Killing TPU"
-gcloud compute tpus tpu-vm ssh $TPU_NAME \
---zone $ZONE --worker=all --command "sudo fuser -k /dev/accel0"
+./tpu_kill.sh
 
 echo "[local] Git pull"
 gcloud compute tpus tpu-vm ssh $TPU_NAME --zone $ZONE --worker=all --command \
