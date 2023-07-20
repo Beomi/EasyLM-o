@@ -29,7 +29,7 @@ python -m EasyLM.models.llama.llama_train \
 --train_dataset.text_processor.fields='text' \
 --train_dataset.json_dataset.path=gs://kodataset/clean_news_20220101_20230309.jsonl \
 --train_dataset.json_dataset.seq_length=2048 \
---train_dataset.json_dataset.batch_size=2048 \
+--train_dataset.json_dataset.batch_size=1024 \
 --train_dataset.json_dataset.tokenizer_processes=16 \
 --tokenizer.name=beomi/llama-2-ko-7b \
 --optimizer.type=adamw \
