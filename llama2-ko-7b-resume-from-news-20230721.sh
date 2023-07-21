@@ -16,7 +16,7 @@ cat > /home/beomi/EasyLM-o/runner.sh << 'EOF'
 export LIBTPU_INIT_ARGS='--xla_jf_spmd_threshold_for_windowed_einsum_mib=0 --xla_tpu_spmd_threshold_for_allgather_cse=10000 --xla_tpu_spmd_rewrite_einsum_with_reshape=true --xla_enable_async_all_gather=true --xla_tpu_enable_latency_hiding_scheduler=true TPU_MEGACORE=MEGACORE_DENSE'
 export NAME=7B
 python -m EasyLM.models.llama.llama_train \
---load_checkpoint=params::gs://kodataset/easylm_format.stream \
+--load_checkpoint=trainstate::gs://jaxseq-test/easylm-out/llama-2-ko-7b-test/5a701b426532472daa7bb52a6c691066/streaming_train_state \
 --mesh_dim=4,-1,1 \
 --dtype=bf16 \
 --total_steps=100001 \
@@ -27,7 +27,7 @@ python -m EasyLM.models.llama.llama_train \
 --update_llama_config= \
 --train_dataset.type='json' \
 --train_dataset.text_processor.fields='text' \
---train_dataset.json_dataset.path=gs://kodataset/clean_news_20220101_20230309.jsonl \
+--train_dataset.json_dataset.path=gs://kodataset/korean_dedup_13_tok_ngram__256_minhash_0_8_sim_dataset.jsonl \
 --train_dataset.json_dataset.seq_length=2048 \
 --train_dataset.json_dataset.batch_size=1024 \
 --tokenizer.name=beomi/llama-2-ko-7b \
@@ -40,7 +40,7 @@ python -m EasyLM.models.llama.llama_train \
 --checkpointer.save_optimizer_state=True \
 --checkpointer.float_dtype=bf16 \
 --logger.online=True \
---logger.output_dir=gs://jaxseq-test/easylm-out/llama-2-ko-7b-test
+--logger.output_dir=gs://jaxseq-test/easylm-out/llama-2-ko-7b-test-resume
 EOF
 chmod +x /home/beomi/EasyLM-o/runner.sh"
 
