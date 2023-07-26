@@ -29,7 +29,7 @@ python -m EasyLM.models.llama.llama_train \
 --train_dataset.text_processor.fields='text' \
 --train_dataset.json_dataset.path=gs://kodataset/kor_shuffle_dataset.jsonl \
 --train_dataset.json_dataset.seq_length=2048 \
---train_dataset.json_dataset.batch_size=2048 \
+--train_dataset.json_dataset.batch_size=1024 \
 --tokenizer.name=beomi/llama-2-ko-7b \
 --optimizer.type=adamw \
 --optimizer.adamw_optimizer.weight_decay=0.1 \
