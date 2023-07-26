@@ -24,7 +24,7 @@ python -m EasyLM.models.llama.llama_train \
 --save_model_freq=2500 \
 --save_milestone_freq=10000 \
 --load_llama_config=7b \
---update_llama_config={"resid_pdrop": 0.1, "embd_pdrop": 0.1} \
+--update_llama_config='{\"attn_pdrop\": 0.1}' \
 --train_dataset.type='json' \
 --train_dataset.text_processor.fields='text' \
 --train_dataset.json_dataset.path=gs://kodataset/kor_shuffle_dataset.jsonl \
