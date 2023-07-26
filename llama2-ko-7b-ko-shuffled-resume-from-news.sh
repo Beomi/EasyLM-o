@@ -16,7 +16,7 @@ cat > /home/beomi/EasyLM-o/runner.sh << 'EOF'
 export LIBTPU_INIT_ARGS='--xla_jf_spmd_threshold_for_windowed_einsum_mib=0 --xla_tpu_spmd_threshold_for_allgather_cse=10000 --xla_tpu_spmd_rewrite_einsum_with_reshape=true --xla_enable_async_all_gather=true --xla_tpu_enable_latency_hiding_scheduler=true TPU_MEGACORE=MEGACORE_DENSE'
 export NAME=7B
 python -m EasyLM.models.llama.llama_train \
---load_checkpoint=params::gs://jaxseq-test/easylm-out/llama-2-ko-7b-test/d0604be4f5dc44a681b1dc8c2098d19a/streaming_train_state \
+--load_checkpoint=trainstate_params::gs://jaxseq-test/easylm-out/llama-2-ko-7b-test/d0604be4f5dc44a681b1dc8c2098d19a/streaming_train_state \
 --mesh_dim=4,-1,1 \
 --dtype=bf16 \
 --total_steps=100001 \
@@ -35,7 +35,7 @@ python -m EasyLM.models.llama.llama_train \
 --optimizer.adamw_optimizer.weight_decay=0.1 \
 --optimizer.adamw_optimizer.lr=0.00001 \
 --optimizer.adamw_optimizer.end_lr=0.000001 \
---optimizer.adamw_optimizer.lr_warmup_steps=7200 \
+--optimizer.adamw_optimizer.lr_warmup_steps=2000 \
 --optimizer.adamw_optimizer.lr_decay_steps=100001 \
 --checkpointer.save_optimizer_state=True \
 --checkpointer.float_dtype=bf16 \
