@@ -19,7 +19,7 @@ python -m EasyLM.models.llama.llama_train \
 --load_checkpoint=params::gs://kodataset/easylm_format.stream \
 --mesh_dim=4,-1,1 \
 --dtype=bf16 \
---total_steps=360001 \
+--total_steps=100001 \
 --log_freq=50 \
 --save_model_freq=2500 \
 --save_milestone_freq=10000 \
@@ -33,10 +33,10 @@ python -m EasyLM.models.llama.llama_train \
 --tokenizer.name=beomi/llama-2-ko-7b \
 --optimizer.type=adamw \
 --optimizer.adamw_optimizer.weight_decay=0.1 \
---optimizer.adamw_optimizer.lr=0.00005 \
---optimizer.adamw_optimizer.end_lr=0.00001 \
---optimizer.adamw_optimizer.lr_warmup_steps=7200 \
---optimizer.adamw_optimizer.lr_decay_steps=360001 \
+--optimizer.adamw_optimizer.lr=0.00001 \
+--optimizer.adamw_optimizer.end_lr=0.000001 \
+--optimizer.adamw_optimizer.lr_warmup_steps=2000 \
+--optimizer.adamw_optimizer.lr_decay_steps=100001 \
 --checkpointer.save_optimizer_state=True \
 --checkpointer.float_dtype=bf16 \
 --logger.online=True \

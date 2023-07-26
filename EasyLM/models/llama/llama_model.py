@@ -68,9 +68,6 @@ LLAMA_STANDARD_CONFIGS = {
         "rms_norm_eps": 1e-6,
         "use_cache": True,
         "tie_word_embeddings": False,
-        "resid_pdrop": 0.1,
-        "embd_pdrop": 0.1,
-        "attn_pdrop": 0.1,
     },
     "13b": {
         "vocab_size": 52000,
