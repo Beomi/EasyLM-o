@@ -262,8 +262,7 @@ class JsonDataset(object):
             fin.seek(self._file_loc)
             while True:
                 line = fin.readline()
-                # noramlize
-                line = normalize("NFKC", line)
+
                 self._file_loc = fin.tell()
                 if not line:  # Reached EOF
                     self._index = 0
@@ -271,6 +270,8 @@ class JsonDataset(object):
                     continue
 
                 data = self.parse_json(line)
+                # noramlize
+                data = normalize("NFKC", data)
                 if data is not None:
                     # JSON parsing succeeded
                     yield data, self._file_loc, self._index
