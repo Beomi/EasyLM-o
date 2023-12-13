@@ -14,14 +14,16 @@ import numpy as np
 
 from datasets import load_dataset
 
+from unicodedata import normalize
+
 
 class DatasetFactory(object):
-    """ Datset builder class. """
+    """Datset builder class."""
 
     @staticmethod
     def get_default_config(updates=None):
         config = ConfigDict()
-        config.type = 'huggingface'
+        config.type = "huggingface"
         config.text_processor = TextProcessor.get_default_config()
         config.huggingface_dataset = HuggingfaceDataset.get_default_config()
         config.json_dataset = JsonDataset.get_default_config()
@@ -34,40 +36,42 @@ class DatasetFactory(object):
     def load_dataset(cls, config, tokenizer, **kwargs):
         config = cls.get_default_config(config)
         text_processor = TextProcessor(config.text_processor, tokenizer)
-        if config.type == 'huggingface':
+        if config.type == "huggingface":
             return HuggingfaceDataset(
                 config.huggingface_dataset, tokenizer, text_processor, **kwargs
             )
-        elif config.type == 'json':
+        elif config.type == "json":
             return JsonDataset(config.json_dataset, tokenizer, text_processor, **kwargs)
         else:
-            raise ValueError(f'Unknown dataset type: {config.type}')
+            raise ValueError(f"Unknown dataset type: {config.type}")
 
     def __init__(self):
-        raise ValueError('DatasetFactory is a static class and should not be instantiated.')
+        raise ValueError(
+            "DatasetFactory is a static class and should not be instantiated."
+        )
 
 
 class TextProcessor(object):
-    """ Example processor that converts a dictionary of texts into tokens. """
+    """Example processor that converts a dictionary of texts into tokens."""
 
     @staticmethod
     def get_default_config(updates=None):
         config = ConfigDict()
-        config.fields_from_example = ''
-        config.fields = ''
-        config.subfield_separator = ' '
+        config.fields_from_example = ""
+        config.fields = ""
+        config.subfield_separator = " "
         config.add_bos_token = True
         config.add_eos_token = True
-        config.prepend_text = ''
+        config.prepend_text = ""
         if updates is not None:
             config.update(ConfigDict(updates).copy_and_resolve_references())
         return config
 
     def __init__(self, config, tokenizer):
         self.config = self.get_default_config(config)
-        assert self.config.fields != '' or self.config.fields_from_example != '', (
-            'Either fields or fields_from_example must be specified.'
-        )
+        assert (
+            self.config.fields != "" or self.config.fields_from_example != ""
+        ), "Either fields or fields_from_example must be specified."
         self.tokenizer = tokenizer
 
     def __call__(self, example, has_aux=False):
@@ -82,27 +86,27 @@ class TextProcessor(object):
             token_buffer.append(self.tokenizer.bos_token_id)
             loss_mask_buffer.append(0.0)
 
-        if self.config.fields_from_example != '':
-            fields = example[self.config.fields_from_example].split(',')
+        if self.config.fields_from_example != "":
+            fields = example[self.config.fields_from_example].split(",")
         else:
-            fields = self.config.fields.split(',')
+            fields = self.config.fields.split(",")
 
         for i, field in enumerate(fields):
-            if field.startswith('[') and field.endswith(']'):
+            if field.startswith("[") and field.endswith("]"):
                 # No loss for this field.
                 field = field[1:-1]
                 mask = 0.0
             else:
                 mask = 1.0
 
-            if field == '<|bos|>':
+            if field == "<|bos|>":
                 token_buffer.append(self.tokenizer.bos_token_id)
                 loss_mask_buffer.append(mask)
-            elif field == '<|eos|>':
+            elif field == "<|eos|>":
                 token_buffer.append(self.tokenizer.eos_token_id)
                 loss_mask_buffer.append(mask)
             else:
-                subfields = field.split('+')
+                subfields = field.split("+")
                 text = self.config.subfield_separator.join(
                     [example[subfield] for subfield in subfields]
                 )
@@ -120,16 +124,16 @@ class TextProcessor(object):
 
 
 class HuggingfaceDataset(object):
-    """ Huggingface dataset, where the dataset is loaded using the huggingface
-        datasets.load_dataset() function.
+    """Huggingface dataset, where the dataset is loaded using the huggingface
+    datasets.load_dataset() function.
     """
 
     @staticmethod
     def get_default_config(updates=None):
         config = ConfigDict()
-        config.path = 'c4'
-        config.name = 'en'
-        config.split = 'train'
+        config.path = "c4"
+        config.name = "en"
+        config.split = "train"
         config.streaming = False
         config.seq_length = 1024
         config.batch_size = 8
@@ -141,8 +145,8 @@ class HuggingfaceDataset(object):
 
     def __init__(self, config, tokenizer, text_processor):
         self.config = self.get_default_config(config)
-        name = self.config.name if self.config.name != '' else None
-        split = self.config.split if self.config.split != '' else None
+        name = self.config.name if self.config.name != "" else None
+        split = self.config.split if self.config.split != "" else None
         self._tokenizer = tokenizer
         self._text_processor = text_processor
         self._dataset = load_dataset(
@@ -162,22 +166,22 @@ class HuggingfaceDataset(object):
                 while len(token_buffer) > chunk_size + 1:
                     total_tokens += chunk_size
                     metrics = {
-                        'dataset_example_index': index,
-                        'dataset_total_tokens': total_tokens,
+                        "dataset_example_index": index,
+                        "dataset_total_tokens": total_tokens,
                     }
                     batch = {
-                        'input_tokens': np.array(token_buffer[:chunk_size], dtype=np.int32).reshape(
-                            self.config.batch_size, -1
-                        ),
-                        'target_tokens': np.array(token_buffer[1:chunk_size + 1], dtype=np.int32).reshape(
-                            self.config.batch_size, -1
-                        ),
-                        'loss_masks': np.array(loss_mask_buffer[1:chunk_size + 1], dtype=np.float32).reshape(
-                            self.config.batch_size, -1
-                        ),
+                        "input_tokens": np.array(
+                            token_buffer[:chunk_size], dtype=np.int32
+                        ).reshape(self.config.batch_size, -1),
+                        "target_tokens": np.array(
+                            token_buffer[1 : chunk_size + 1], dtype=np.int32
+                        ).reshape(self.config.batch_size, -1),
+                        "loss_masks": np.array(
+                            loss_mask_buffer[1 : chunk_size + 1], dtype=np.float32
+                        ).reshape(self.config.batch_size, -1),
                     }
                     if self.config.always_start_with_bos:
-                        batch['input_tokens'][:, 0] = self.tokenizer.bos_token_id
+                        batch["input_tokens"][:, 0] = self.tokenizer.bos_token_id
                     yield batch, metrics
                     token_buffer = token_buffer[chunk_size:]
                     loss_mask_buffer = loss_mask_buffer[chunk_size:]
@@ -186,8 +190,8 @@ class HuggingfaceDataset(object):
         return dict(config=self.config)
 
     def load_state_dict(self, state_dict):
-        if 'config' in state_dict:
-            self.config.update(ConfigDict(state_dict['config']))
+        if "config" in state_dict:
+            self.config.update(ConfigDict(state_dict["config"]))
 
     @property
     def seq_length(self):
@@ -211,14 +215,14 @@ class HuggingfaceDataset(object):
 
 
 class JsonDataset(object):
-    """ JSON dataset, where each line of the data file contains a JSON
-        dictionary with text fields.
+    """JSON dataset, where each line of the data file contains a JSON
+    dictionary with text fields.
     """
 
     @staticmethod
     def get_default_config(updates=None):
         config = ConfigDict()
-        config.path = ''
+        config.path = ""
         config.seq_length = 1024
         config.batch_size = 8
         config.always_start_with_bos = False
@@ -236,7 +240,7 @@ class JsonDataset(object):
 
     def __init__(self, config, tokenizer, text_processor):
         self.config = self.get_default_config(config)
-        assert self.config.path != ''
+        assert self.config.path != ""
         self._tokenizer = tokenizer
         self._text_processor = text_processor
         self._index = self.config.example_index_at_start
@@ -244,22 +248,24 @@ class JsonDataset(object):
         self._total_tokens = self.config.tokens_count_at_start
 
     def parse_json(self, line):
-        if not line or line == '\n':
+        if not line or line == "\n":
             return None
         try:
             data = json.loads(line)
         except json.decoder.JSONDecodeError:
-            print(f'Error parsing json line:\n{line}')
+            print(f"Error parsing json line:\n{line}")
             return None
         return data
 
     def json_iterator(self):
-        with mlxu.open_file(self.config.path, 'r') as fin:
+        with mlxu.open_file(self.config.path, "r") as fin:
             fin.seek(self._file_loc)
             while True:
                 line = fin.readline()
+                # noramlize
+                line = normalize(line)
                 self._file_loc = fin.tell()
-                if not line:   # Reached EOF
+                if not line:  # Reached EOF
                     self._index = 0
                     fin.seek(0)
                     continue
@@ -292,14 +298,16 @@ class JsonDataset(object):
             with process_pool as pool:
                 map_fn = partial(self.text_processor, has_aux=True)
                 next_batch = pool.map_async(
-                    map_fn, next(batched_iterator),
-                    chunksize=self.config.tokenizer_parallel_chunk_size
+                    map_fn,
+                    next(batched_iterator),
+                    chunksize=self.config.tokenizer_parallel_chunk_size,
                 )
                 while True:
                     current_batch = next_batch
                     next_batch = pool.map_async(
-                        map_fn, next(batched_iterator),
-                        chunksize=self.config.tokenizer_parallel_chunk_size
+                        map_fn,
+                        next(batched_iterator),
+                        chunksize=self.config.tokenizer_parallel_chunk_size,
                     )
                     for example in current_batch.get():
                         yield example
@@ -320,31 +328,33 @@ class JsonDataset(object):
                 step_times.append(time.time() - last_time)
                 last_time = time.time()
                 if len(step_times) > self.config.throughput_average_window_size:
-                    step_times = step_times[-self.config.throughput_average_window_size:]
+                    step_times = step_times[
+                        -self.config.throughput_average_window_size :
+                    ]
                 average_throughput = chunk_size / np.mean(step_times)
-                accumulated_throughput = (
-                    (self._total_tokens - start_tokens) / (time.time() - start_time)
+                accumulated_throughput = (self._total_tokens - start_tokens) / (
+                    time.time() - start_time
                 )
                 metrics = {
-                    'dataset_file_loc': loc,
-                    'dataset_example_index': index,
-                    'dataset_total_tokens': self._total_tokens,
-                    'dataset_accumulated_tps': accumulated_throughput,
-                    'dataset_average_tps': average_throughput,
+                    "dataset_file_loc": loc,
+                    "dataset_example_index": index,
+                    "dataset_total_tokens": self._total_tokens,
+                    "dataset_accumulated_tps": accumulated_throughput,
+                    "dataset_average_tps": average_throughput,
                 }
                 batch = {
-                    'input_tokens': np.array(token_buffer[:chunk_size], dtype=np.int32).reshape(
-                        self.config.batch_size, -1
-                    ),
-                    'target_tokens': np.array(token_buffer[1:chunk_size + 1], dtype=np.int32).reshape(
-                        self.config.batch_size, -1
-                    ),
-                    'loss_masks': np.array(loss_mask_buffer[1:chunk_size + 1], dtype=np.float32).reshape(
-                        self.config.batch_size, -1
-                    ),
+                    "input_tokens": np.array(
+                        token_buffer[:chunk_size], dtype=np.int32
+                    ).reshape(self.config.batch_size, -1),
+                    "target_tokens": np.array(
+                        token_buffer[1 : chunk_size + 1], dtype=np.int32
+                    ).reshape(self.config.batch_size, -1),
+                    "loss_masks": np.array(
+                        loss_mask_buffer[1 : chunk_size + 1], dtype=np.float32
+                    ).reshape(self.config.batch_size, -1),
                 }
                 if self.config.always_start_with_bos:
-                    batch['input_tokens'][:, 0] = self.tokenizer.bos_token_id
+                    batch["input_tokens"][:, 0] = self.tokenizer.bos_token_id
                 yield batch, metrics
                 token_buffer = token_buffer[chunk_size:]
                 loss_mask_buffer = loss_mask_buffer[chunk_size:]
@@ -358,11 +368,13 @@ class JsonDataset(object):
         )
 
     def load_state_dict(self, state_dict):
-        if 'config' in state_dict:
-            self.config.update(ConfigDict(state_dict['config']))
-        self._index = state_dict.get('index', self.config.example_index_at_start)
-        self._file_loc = state_dict.get('file_loc', self.config.start_seek_loc)
-        self._total_tokens = state_dict.get('total_tokens', self.config.tokens_count_at_start)
+        if "config" in state_dict:
+            self.config.update(ConfigDict(state_dict["config"]))
+        self._index = state_dict.get("index", self.config.example_index_at_start)
+        self._file_loc = state_dict.get("file_loc", self.config.start_seek_loc)
+        self._total_tokens = state_dict.get(
+            "total_tokens", self.config.tokens_count_at_start
+        )
 
     @property
     def seq_length(self):
