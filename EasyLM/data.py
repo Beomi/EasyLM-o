@@ -271,7 +271,7 @@ class JsonDataset(object):
 
                 data = self.parse_json(line)
                 # noramlize
-                data = normalize("NFKC", data)
+                # data = normalize("NFKC", data)
                 if data is not None:
                     # JSON parsing succeeded
                     yield data, self._file_loc, self._index
