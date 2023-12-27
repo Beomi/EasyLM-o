@@ -21,13 +21,15 @@ cd EasyLM-o && git pull && rm /home/beomi/EasyLM-o/runner.sh"
 
 echo "[local] Set runner.sh"
 
+HASH='2a4ab2be67e24a559ec6d780dc786c14'
+
 gcloud compute tpus tpu-vm ssh $TPU_NAME --zone $ZONE --worker=all --command "
 cat > /home/beomi/EasyLM-o/runner.sh << 'EOF'
 export LIBTPU_INIT_ARGS='--xla_jf_spmd_threshold_for_windowed_einsum_mib=0 --xla_tpu_spmd_threshold_for_allgather_cse=10000 --xla_tpu_spmd_rewrite_einsum_with_reshape=true --xla_enable_async_all_gather=true --xla_tpu_enable_latency_hiding_scheduler=true TPU_MEGACORE=MEGACORE_DENSE'
 export NAME=7B
 python -m EasyLM.models.llama.llama_train \
---load_dataset_state=gs://jaxseq-test/easylm-out/llama-2-ko-7b-kor_shuffle_dataset/17ad8d02b1014afebfc622c61e690638/dataset.pkl \
---load_checkpoint=trainstate::gs://jaxseq-test/easylm-out/llama-2-ko-7b-kor_shuffle_dataset/17ad8d02b1014afebfc622c61e690638/streaming_train_state \
+--load_dataset_state=gs://jaxseq-test/easylm-out/llama-2-ko-7b-kor_shuffle_dataset/$HASH/dataset.pkl \
+--load_checkpoint=trainstate::gs://jaxseq-test/easylm-out/llama-2-ko-7b-kor_shuffle_dataset/$HASH/streaming_train_state \
 --mesh_dim=4,-1,1 \
 --dtype=bf16 \
 --total_steps=100001 \
