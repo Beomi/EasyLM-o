@@ -84,7 +84,7 @@ def tokenize(x):
     return res
 
 
-def encode(x, weights=[0.15, 0.85]):
+def encode(x, weights=[0.5, 0.5]):
     encoded = []
     for new, org in tokenize(x):
         chosen = random.choices([new, org], weights=weights, k=1)[0]
