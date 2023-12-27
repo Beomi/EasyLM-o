@@ -46,6 +46,7 @@ python -m EasyLM.models.llama.llama_train \
 --tokenizer.bos_token='<s>' \
 --tokenizer.eos_token='</s>' \
 --tokenizer.pad_token='</s>' \
+--train_dataset.json_dataset.tokenizer_processes=16 \
 --optimizer.type=adamw \
 --optimizer.adamw_optimizer.weight_decay=0.1 \
 --optimizer.adamw_optimizer.lr=5e-5 \
