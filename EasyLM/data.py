@@ -16,6 +16,13 @@ from datasets import load_dataset
 
 from unicodedata import normalize
 
+from transformers import AutoTokenizer
+import re
+import random
+
+original_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
+new_tokenizer = AutoTokenizer.from_pretrained("beomi/llama-2-ko-7b-emb-dev")
+
 
 class DatasetFactory(object):
     """Datset builder class."""
@@ -49,6 +56,43 @@ class DatasetFactory(object):
         raise ValueError(
             "DatasetFactory is a static class and should not be instantiated."
         )
+
+
+def contains_korean(text):
+    # Regular expression pattern for Korean characters
+    pattern = r"[\uAC00-\uD7AF]"
+    # Search for the pattern in the text
+    return bool(re.search(pattern, text))
+
+
+def tokenize(x):
+    res = []
+    for i in new_tokenizer.tokenize(x):
+        if not contains_korean(i):
+            res.append([i, [i]])
+            continue
+        if len(i) == 6 and i.startswith("<0x") and i.endswith(">"):
+            res.append([i, [i]])
+            continue
+        ted = original_tokenizer.tokenize(i)
+        if ted[0] == "▁▁":
+            res.append([i, ["▁"] + ted[1:]])
+        else:
+            if ted[0] == "▁":
+                ted = ted[1:]
+            res.append([i, ted])
+    return res
+
+
+def encode(x, weights=[0.15, 0.85]):
+    encoded = []
+    for new, org in tokenize(x):
+        chosen = random.choices([new, org], weights=weights, k=1)[0]
+        if type(chosen) == str:
+            encoded.append(new_tokenizer.convert_tokens_to_ids(chosen))
+        else:
+            encoded += original_tokenizer.convert_tokens_to_ids(chosen)
+    return encoded
 
 
 class TextProcessor(object):
@@ -112,7 +156,8 @@ class TextProcessor(object):
                 )
                 if i == 0:
                     text = self.config.prepend_text + text
-                tokens = self.tokenizer.encode(text)
+                # tokens = self.tokenizer.encode(text)
+                tokens = encode(text)  # beomi tokenizer, custom, 50% mix
                 token_buffer.extend(tokens)
                 loss_mask_buffer.extend([mask for _ in range(len(tokens))])
 
